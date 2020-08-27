@@ -1,2 +1,1 @@
-# depress-curry
 # depressed-curry
