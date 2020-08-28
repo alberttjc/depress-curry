@@ -1,29 +1,16 @@
 import os
 import sys
 import math
-import random
-import argparse
 import operator
-import pdb
 import numpy as np
-
 import torch
-import torch.autograd as autograd
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-
-from torch.utils.data import Dataset, DataLoader
-
-from collections import defaultdict
-from collections import Counter
-from torch.autograd import Variable
+from torch.utils.data import Dataset
 
 
 class TextLoader(Dataset):
-    def __init__(self, data_dir, type="train", transform=None):
+    def __init__(self, data_dir, type="train", transform=None, n_steps=32):
 
-        self.n_steps        =   32
+        self.n_steps        =   n_steps
         self.transform      =   transform
         if type is "train":
             self.x_data     =   self.load_x(data_dir + "X_train.txt",  self.n_steps)
@@ -36,12 +23,6 @@ class TextLoader(Dataset):
         return len(self.x_data)
 
     def __getitem__(self, index):
-        y_data = torch.tensor(int(self.y_data[index,0]))
-        x_data = self.x_data[index,:,:]
-
-        #if self.transform:
-        #    x_data = self.transform(x_data)
-
         # DEBUG USAGE:
         # y_data is the label of each x_data, dimension is (sample_size,1)
         # x_data is the training data with the deimnsion of (sample_size, 32, 36)
@@ -50,7 +31,11 @@ class TextLoader(Dataset):
         # Desired dimension of x_data is (batch_size, 32, 36) and y_data is (batch_size,1)
         #print(y_data) # output: tensor(0) or tensor(1) --
         #print(x_data) # output: dimension (32, 36)
+        y_data = torch.tensor(int(self.y_data[index,0]))
+        x_data = self.x_data[index,:,:]
 
+        #if self.transform:
+        #    x_data = self.transform(x_data)
         return (x_data, y_data)
 
     def load_x(self, x_path, n_steps):
