@@ -30,26 +30,40 @@ LABELS = [
     "WAVE",
     "CLAP",
     "CLOCKWISE",
-    "DOING NOTHING",
+    "COUNTER_CLOCKWISE",
 ]
 
+LABELS = [
+    "JUMPING",
+    "JUMPING_JACKS",
+    "BOXING",
+    "WAVING_2HANDS",
+    "WAVING_1HAND",
+    "CLAPPING_HANDS"
+]
+
+
+
 # initialise some variables
-qsize = 12  # size of queue to retain for 3D conv input
-sqsize = 3 # size of queue for prediction stabilisation
+qsize = 32  # size of queue to retain for 3D conv input
+sqsize = 7 # size of queue for prediction stabilisation
 num_classes = k = 6
-threshold = 0.7
+threshold = 0.75
 
 def cb_pose(data):
     skeletons = []
 
     for human_idx in range(data.num_humans):
         human = data.human_list[human_idx]
-        skeleton    =   [0]*(25*2)
+        skeleton    =   [0]*(18*2)
 
         for body_idx in range(len(human.body_key_points_with_prob)):
-            if body_idx < 25:
+            if body_idx < 18:
                 skeleton[2*body_idx]=human.body_key_points_with_prob[body_idx].x
                 skeleton[2*body_idx+1]=human.body_key_points_with_prob[body_idx].y
+            #else:
+            #    _nonhuman.append(human.body_key_points_with_prob[body_idx].x)
+            #    _nonhuman.append(human.body_key_points_with_prob[body_idx].y)
         skeletons.append(skeleton)
 
     Q.append(skeletons)
@@ -64,21 +78,23 @@ def cb_pose(data):
     data    =   data[None,:]
 
     if data.size()[1] is qsize:
+        #scores      =   model(torch.autograd.Variable(data))
+        #prediction	=	torch.max(scores, 1)[1]
+        #print(LABELS[prediction.item()])
 
-        #output  =   model(torch.autograd.Variable(data))
         output  =   model(torch.autograd.Variable(data))
         ts, pred = output.detach().cpu().topk(k, 1, True, True)
         top5 = [LABELS[pred[0][i].item()] for i in range(k)]
 
         pi = [pred[0][i].item() for i in range(k)]
         ps = [ts[0][i].item() for i in range(k)]
-        top1 = top5[0] if ps[0] > threshold else LABELS[-1]
+        top1 = top5[0] if ps[0] > threshold else "DOING SOMETHING ELSE"
 
-        #print(output)
+        #print(top1)
 
         hist = {}
 
-        for i in range(k):
+        for i in range(6):
             hist[i] = 0
 
         for i in range(len(pi)):
@@ -86,7 +102,7 @@ def cb_pose(data):
 
         SQ.append(list(hist.values()))
         ave_pred = np.array(SQ).mean(axis=0)
-        top1 = LABELS[np.argmax(ave_pred)] if max(ave_pred) > threshold else LABELS[-1]
+        top1 = LABELS[np.argmax(ave_pred)] if max(ave_pred) > threshold else LABELS[k+1]
         top1 = top1.lower()
         act.append(top1)
 
@@ -100,8 +116,12 @@ if __name__ == '__main__':
 
     ''' Initialize parameters '''
     #debug           =   rospy.get_param('~debug', 'True')
-    ckpt_fn         =   rospy.get_param('~ckpt', "/home/caris/catkin_ws/src/depressed_curry/model/UTD_MHAD/lstm470.ckpt")#"/home/caris/catkin_ws/src/depressed_curry/model/lstm005.ckpt")
-    #image_topic     =   rospy.get_param('~camera', "/kinect2/qhd/image_color_rect")
+    ckpt_fn         =   rospy.get_param('~ckpt', "/home/caris/catkin_ws/src/depressed_curry/model/Berkeley_MHAD/lstm005.ckpt")#"/home/caris/catkin_ws/src/depressed_curry/model/lstm005.ckpt")
+    image_topic     =   rospy.get_param('~camera', "/kinect2/qhd/image_color_rect")
+
+    if not image_topic:
+        rospy.logerr('Parameter \'camera\' is not provided')
+        sys.exit(-1)
 
     ''' Initialize Constant '''
     Q   = deque(maxlen=qsize)
@@ -109,12 +129,14 @@ if __name__ == '__main__':
     act = deque(['No gesture','No gesture'], maxlen=3)
 
     cv_bridge   =   CvBridge()
+    #sub_image   =   rospy.Subscriber(image_topic, Image, callback_image, queue_size=1, buff_size=2**24)
     sub_pose    =   rospy.Subscriber("/openpose_ros/human_list", OpenPoseHumanList, cb_pose, queue_size=1)
 
     ''' Initialize inference layer '''
     use_cuda    =   torch.cuda.is_available()
     device      =   torch.device('cuda' if use_cuda else 'cpu')
-    model       =   LSTMClassifier(50,2,70,qsize,k,use_cuda)
+    #model       =   LSTMClassifier(50,2,70,12,6,use_cuda)
+    model       =   LSTMClassifier(36,2,34,32,6,use_cuda)
     model       =   model.cuda() if use_cuda else model
 
     ''' Loading checkpoint file '''

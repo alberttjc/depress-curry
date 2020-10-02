@@ -6,8 +6,8 @@ import os
 from sys import platform
 import argparse
 
-IMAGE_DIR = '/home/caris/Data/UTD_MHAD/frames/'
-OUTPUT_DIR = '/home/caris/Data/UTD_MHAD/json/'
+IMAGE_DIR = '/home/caris/Data/UTD_MHAD/3D_frames/'
+OUTPUT_DIR = '/home/caris/Data/UTD_MHAD/3D_json/'
 
 def openpose_inference(filename, image_path):
     try:
@@ -45,7 +45,7 @@ def main():
         last_file_idx   =   1
 
         INPUT_DIR       =   IMAGE_DIR + ("%s" % folder_idx) + "/"
-        FOLDER_DIR      =   OUTPUT_DIR + ("%s" % folder_idx) + "/"
+        FOLDER_DIR      =   OUTPUT_DIR + ("%s" % (folder_idx)) + "/"
 
         if not os.path.isdir(FOLDER_DIR):
             os.makedirs(FOLDER_DIR)
@@ -60,7 +60,6 @@ def main():
             last_file_idx += 1
 
     print("Done")
-
 
 if __name__ == "__main__":
 

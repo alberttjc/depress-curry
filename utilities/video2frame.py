@@ -3,8 +3,8 @@ import numpy as np
 import os
 
 ROOT = os.path.dirname(os.path.abspath(__file__))+"/../"
-VIDEO_DIR = '/home/caris/UTD_MHAD/'
-OUTPUT_DIR = '/home/caris/Data/UTD_MHAD/frames'
+VIDEO_DIR = '/home/caris/Recording/'
+OUTPUT_DIR = '/home/caris/Data/Recording/frames/'
 
 if not os.path.isdir(VIDEO_DIR):
     os.makedirs(VIDEO_DIR)
@@ -42,14 +42,43 @@ for _, dirnames, filenames in os.walk(VIDEO_DIR):
         21. pick up and throw                   (pickup_throw)
 """
 # action is the index array that you want to use for the action associated above
+action = [1,2,3,4,9]
 
-action = [1,2,3,4,9,10]
+"""
+    Custom Recordings
+
+for folder_idx in range(50):
+    folder_idx += 1
+    current_frame = 1
+    last_file_idx = 1
+
+    INPUT_DIR = VIDEO_DIR + ("%s" % folder_idx) + ".avi"
+    FRAME_DIR = OUTPUT_DIR + ("%s" % (folder_idx + 0))
+
+    if not os.path.isdir(FRAME_DIR):
+        os.makedirs(FRAME_DIR)
+
+    cap = cv2.VideoCapture(INPUT_DIR)
+
+    while True:
+        ret, frame = cap.read()
+
+        if not ret:
+            break
+
+        if current_frame % 5 is 0:
+            name = str(last_file_idx) + '.jpg'
+            cv2.imwrite(os.path.join(FRAME_DIR, name), frame)
+            last_file_idx += 1
+        current_frame += 1
+
+    print(FRAME_DIR)
+"""
 
 """
     file_idx        :   referes to the number of files and folders
     last_file_idx   :   number of frames extracted from a single video files (output)
     current_frame   :   number of frames extracted from a single video files (process)
-
 """
 # Change this if you change action
 file_idx = 0
@@ -79,7 +108,7 @@ for action_idx in range(len(action)):
             if not ret:
                 break
 
-            if current_frame % 3 is 0:
+            if current_frame % 5 is not 0:
                 name = str(last_file_idx) + '.jpg'
                 cv2.imwrite(os.path.join(FRAME_DIR, name), frame)
                 last_file_idx += 1
@@ -88,12 +117,12 @@ for action_idx in range(len(action)):
         if current_frame < 10:
             print("Error")
 
-
         if rep_idx is 4:
             subject_idx += 1
             rep_idx = 0
         if rep_idx < 5:
             rep_idx += 1
+
 
 #release capture
 cap.release()

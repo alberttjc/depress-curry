@@ -34,18 +34,17 @@ LABELS = [
     "WAVE",
     "CLAP",
     "CLOCKWISE",
-    "COUNTER_CLOCKWISE",
+    "DOING NOTHING",
 ]
 
-
-epoch = 400
+epoch = 1000
 features = 70
-generate_matrix = False
+generate_matrix = True
 
 def main(args):
 	# Directory and file
 	dataset_name	=	"UTD_MHAD"
-	model_name		=	"test010"#"lstm"+str(epoch+features)
+	model_name		=	"remodel470"#"lstm"+str(epoch+features)
 	model_dir		=	os.path.join(args.output_dir, dataset_name)
 	ckpt_file		=	os.path.join(model_dir, model_name + ".ckpt")
 	transfer_file	=	os.path.join(model_dir, "lstm005.ckpt")
@@ -61,10 +60,10 @@ def main(args):
     #	print("=> active GPUs: {}".format(args.gpus))
 
 	# Files for training and testing
-	x_train_data 	=	"x_train.txt"#"data.txt"#"x_train.txt"
-	y_train_data 	=	"y_train.txt"#"labels.txt"#"y_train.txt"
-	x_test_data 	=	"x_test.txt"#"data.txt"#"x_test.txt"
-	y_test_data 	=	"y_test.txt"#"labels.txt"#"y_test.txt"
+	x_train_data 	=	"data_3action.txt"#"data.txt"#"x_train.txt"
+	y_train_data 	=	"labels_3action.txt"#"labels.txt"#"y_train.txt"
+	x_test_data 	=	"data_3action.txt"#"data.txt"#"x_test.txt"
+	y_test_data 	=	"labels_3action.txt"#"labels.txt"#"y_test.txt"
 
 	# Setting up dataset and model
 	dataset_train	= 	TextLoader(x_path = args.data_dir + x_train_data, y_path = args.data_dir + y_train_data, \
@@ -251,7 +250,7 @@ if __name__ == '__main__':
 											help='number of hidden layers')
 	parser.add_argument('--seq_len', 		type=int, default=12,
 											help='number of steps/frames of each action')
-	parser.add_argument('--num_classes',	type=int, default=6,
+	parser.add_argument('--num_classes',	type=int, default=3,
 											help='number of classes/type of each action')
 	parser.add_argument('--learning_rate',	type=float, default=0.0005,
 											help='initial learning rate')

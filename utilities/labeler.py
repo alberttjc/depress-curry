@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import os
 
-LABEL_DIR = "/home/caris/Data/UTD_MHAD/labels.txt"
+LABEL_DIR = "/home/caris/Data/UTD_MHAD/labels_3action.txt"
 
 """
         1.  right arm swipe to the left         (swipt_left)
@@ -29,13 +29,21 @@ LABEL_DIR = "/home/caris/Data/UTD_MHAD/labels.txt"
 """
 # action is the index array that you want to use for the action associated above
 
-action = [1,2,3,4,9,10]
+action = [1,2,3]
+
+LABELS = [
+    "SWIPE_LEFT",
+    "SWIPE_RIGHT",
+    "WAVE",
+    "CLAP",
+    "CLOCKWISE",
+    "COUNTER_CLOCKWISE",
+]
 
 """
     file_idx        :   referes to the number of files and folders
     last_file_idx   :   number of frames extracted from a single video files (output)
     current_frame   :   number of frames extracted from a single video files (process)
-
 """
 # Change this if you change action
 file_idx = 1
@@ -58,9 +66,11 @@ for action_idx in range(len(action)):
 
         if os.path.exists(LABEL_DIR):
             with open(LABEL_DIR, "a") as f:
+                #f.write(str(label_choice)+"\n")
                 f.write(str(label_choice)+"\n")
         else:
             with open(LABEL_DIR, 'w') as f:
+                #f.write(str(label_choice)+"\n")
                 f.write(str(label_choice)+"\n")
 
         file_idx += 1
@@ -69,3 +79,4 @@ for action_idx in range(len(action)):
             rep_idx = 0
         if rep_idx < 5:
             rep_idx += 1
+print("Done")

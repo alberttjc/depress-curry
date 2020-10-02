@@ -1,19 +1,9 @@
-"""
-Converts output of OpenPose (.json) to a .txt file.
-creat_db.py is required to be run after this script to merge all text files into format required for RNN for Human Activity Recognition - 2D Pose Input
-
-Created by Stuart Eiffert 13/12/2017
-
-All code is provided under the MIT License
-
-"""
-
 
 import json
 import glob, os
 
 JSON_DIR = '/home/caris/Data/UTD_MHAD/json/'
-OUTPUT_DIR = '/home/caris/Data/UTD_MHAD/sample.txt'
+OUTPUT_DIR = '/home/caris/Data/UTD_MHAD/data_3action.txt'
 
 openpose_2person_count = 0
 
@@ -50,7 +40,7 @@ def json2text(json_path):
                 label_file.write(str(kps).strip("[[]]")+"\n")
 
 def main():
-    for folder_idx in range(folders):
+    for folder_idx in range(32*3):
         folder_idx      +=  1
         last_file_idx   =   1
         INPUT_DIR       =   JSON_DIR + ("%s" % folder_idx) + "/"
@@ -59,7 +49,8 @@ def main():
         for frame_idx in range(len(frames)):
 			current_frame = INPUT_DIR + str(last_file_idx) + '_keypoints.json'
 			#print("Processing current folder:", current_frame)
-			json2text(current_frame)
+			if last_file_idx % 1 is 0:
+				json2text(current_frame)
 			last_file_idx += 1
 
     print("Done")
